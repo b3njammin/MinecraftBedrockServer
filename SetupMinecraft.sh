@@ -441,14 +441,14 @@ if [[ "$response" == "y" ]]; then
   rclone config
   
   # Create a backup script
-  cat <<EOL > /usr/local/bin/minecraft_backup.sh
+  cat <<EOL > /$DirName/minecraft_backup.sh
 #!/bin/bash
 rclone copy /$DirName/minecraftbe/$ServerName/backups/ remote:backups-$ServerName
 EOL
-  chmod +x /usr/local/bin/minecraft_backup.sh
+  chmod +x /$DirName/minecraft_backup.sh
   
   # Set up a cron job for daily backups at 2 AM
-  (crontab -l 2>/dev/null; echo "0 2 * * * /usr/local/bin/minecraft_backup.sh") | crontab -
+  (crontab -l 2>/dev/null; echo "0 2 * * * /$DirName/minecraft_backup.sh") | crontab -
   
   echo "Automatic backups have been enabled and are scheduled."
 else
