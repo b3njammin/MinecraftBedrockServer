@@ -429,6 +429,33 @@ mkdir downloads
 mkdir backups
 mkdir logs
 
+# Prompt user for auto backups using Rclone
+echo -n "Do you want to enable automatic backups using Rclone (y/n)?"
+read -r response
+if [[ "$response" == "y" ]]; then
+  echo "Downloading and installing Rclone..."
+  sudo -v ; curl https://rclone.org/install.sh | sudo bash
+  
+  # Configure Rclone for first time setup
+  echo "Please configure Rclone with your remote storage service. For details see: https://rclone.org/docs/"
+  rclone config
+  
+  # Create a backup script
+  cat <<EOL > /usr/local/bin/minecraft_backup.sh
+#!/bin/bash
+rclone copy /$DirName/minecraftbe/$ServerName/backups/ remote:backups-$ServerName
+EOL
+  chmod +x /usr/local/bin/minecraft_backup.sh
+  
+  # Set up a cron job for daily backups at 2 AM
+  (crontab -l 2>/dev/null; echo "0 2 * * * /usr/local/bin/minecraft_backup.sh") | crontab -
+  
+  echo "Automatic backups have been enabled and are scheduled."
+else
+  echo "Automatic backups will not be enabled. You can install Rclone and configure it later."
+  exit 0
+fi
+
 Check_Architecture
 
 # Update Minecraft server binary
